@@ -1,0 +1,12 @@
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+<svg fill="#000000" width="80px" height="80px" viewBox="0 0 24 24" id="folder-code-3" data-name="Line Color" xmlns="http://www.w3.org/2000/svg" class="icon line-color">
+<g id="SVGRepo_bgCarrier" stroke-width="0"/>
+<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+<g id="SVGRepo_iconCarrier">
+<path id="secondary" d="M19,5H17V3ZM9,9l2,2h8V5L17,3H6A1,1,0,0,0,5,4V9Z" style="fill: none; stroke: #2ca9bc; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"/>
+<polyline id="secondary-2" data-name="secondary" points="9 21 11 19 9 17" style="fill: none; stroke: #2ca9bc; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"/>
+<polyline id="secondary-3" data-name="secondary" points="5 17 3 19 5 21" style="fill: none; stroke: #2ca9bc; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"/>
+<path id="primary" d="M15,21h5a1,1,0,0,0,1-1V12a1,1,0,0,0-1-1H11L9,9H4a1,1,0,0,0-1,1v3" style="fill: none; stroke: #000000; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"/>
+</g>
+</svg>

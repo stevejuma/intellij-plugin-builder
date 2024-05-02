@@ -1,0 +1,46 @@
+package ma.ju.intellij.builder.psi;
+
+public record VarArgRecord(String... args) {
+  public VarArgRecord {
+    java.util.Objects.requireNonNull(args, "property :args is required");
+  }
+
+  @java.lang.Override
+  public java.lang.String toString() {
+    return getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(this));
+  }
+
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static final class Builder {
+    private String[] args;
+
+    private Builder() {}
+
+    private Builder(VarArgRecord record) {
+      this.args = record.args;
+    }
+
+    public Builder setArgs(String[] args) {
+      this.args = args;
+      return this;
+    }
+
+    public VarArgRecord build() {
+      StringBuilder missing = new StringBuilder();
+      if (this.args == null) {
+        missing.append(" args");
+      }
+      if (!missing.isEmpty()) {
+        throw new IllegalStateException("Missing required properties:" + missing);
+      }
+      return new VarArgRecord(this.args);
+    }
+  }
+}

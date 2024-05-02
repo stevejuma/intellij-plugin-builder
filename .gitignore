@@ -1,0 +1,14 @@
+
+# Gradle generated files
+.gradle
+
+
+# IDEA generated files
+.idea
+*.iml
+*.ipr
+
+/build
+
+# local stuff i do not want committed
+/local

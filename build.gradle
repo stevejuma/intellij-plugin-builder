@@ -1,0 +1,59 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '1.17.1'
+}
+
+group 'ma.ju'
+version '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.squareup:javapoet:1.13.0'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
+    testImplementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+}
+
+// Add intellij task configuration for base intellij version (minimum compatibility)
+// This needs to fit the tag <idea-version since-build="xxx"> in plugin.xml
+// See https://www.jetbrains.com/intellij-repository/snapshots
+// See https://www.jetbrains.com/intellij-repository/releases
+intellij {
+    version = '2023.3'
+    downloadSources = true
+    type = 'IC'
+    plugins = ['com.intellij.java']
+    pluginName = 'Record Builder'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+        vendor = JvmVendorSpec.JETBRAINS
+    }
+}
+
+tasks {
+    compileJava {
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
+    }
+
+    wrapper {
+        distributionType = Wrapper.DistributionType.ALL
+        gradleVersion = "8.6"
+    }
+
+    patchPluginXml {
+        sinceBuild = '233.0'
+        untilBuild = ''
+    }
+
+    runIde {
+        errorOutput = System.out
+    }
+}
+

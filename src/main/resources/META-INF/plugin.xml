@@ -1,0 +1,33 @@
+<idea-plugin>
+    <id>RecordBuilder</id>
+    <name>Record Builder</name>
+    <vendor email="steve@os.ju.ma" url="https://github.com/stevejuma/recordbuilder">Steve Juma</vendor>
+    <description>Adds a Builder action to the Generate menu which generates a builder class for Java Records
+    </description>
+    <version>1.0</version>
+    <depends>com.intellij.modules.java</depends>
+
+    <change-notes><![CDATA[
+  24.05.17 - 1.0.0 - Initial release
+  ]]>
+    </change-notes>
+    <actions>
+        <!-- `text` is the value you will see in the generate menu -->
+        <action id="ma.ju.intellij.builder.ide.RecordBuilderAction"
+                class="ma.ju.intellij.builder.ide.RecordBuilderAction"
+                text="Create Builder..."
+                description="Generate a Builder"
+        >
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="shift alt B"/>
+        </action>
+        <action id="ma.ju.intellij.builder.ide.DeleteBuilderAction"
+                class="ma.ju.intellij.builder.ide.DeleteBuilderAction"
+                text="Delete Builder"
+                description="Delete Builder From Class"
+        >
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="shift alt D"/>
+        </action>
+    </actions>
+</idea-plugin>
