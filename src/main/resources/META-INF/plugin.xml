@@ -3,13 +3,9 @@
     <name>Record Builder</name>
     <vendor email="steve@os.ju.ma" url="https://github.com/stevejuma/recordbuilder">Steve Juma</vendor>
     <description><![CDATA[
-    Adds a Builder action to the Generate menu which generates a builder class for Java Records
-
     <body>
-        <h1>Description</h1>
-
         <p>
-        The <strong>Record Builder Pattern Generator</strong> Plugin for IntelliJ offers an effortless way to use
+        The <strong>Record Builder</strong> Plugin for IntelliJ offers an effortless way to use
         the Builder Pattern in your Java code. This plugin allows you to automatically generate builder classes for
         your Java Records, JavaBeans and Interfaces, allowing you to select fields and configure the generated builder
         </p>
