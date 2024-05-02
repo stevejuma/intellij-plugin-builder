@@ -2,13 +2,44 @@
     <id>RecordBuilder</id>
     <name>Record Builder</name>
     <vendor email="steve@os.ju.ma" url="https://github.com/stevejuma/recordbuilder">Steve Juma</vendor>
-    <description>Adds a Builder action to the Generate menu which generates a builder class for Java Records
+    <description><![CDATA[
+    Adds a Builder action to the Generate menu which generates a builder class for Java Records
+
+    <body>
+        <h1>Description</h1>
+
+        <p>
+        The <strong>Record Builder Pattern Generator</strong> Plugin for IntelliJ offers an effortless way to use
+        the Builder Pattern in your Java code. This plugin allows you to automatically generate builder classes for
+        your Java Records, JavaBeans and Interfaces, allowing you to select fields and configure the generated builder
+        </p>
+
+        <p><strong>Key Features:</strong></p>
+
+        <ul>
+            <li><strong>Automatic Generation:</strong> Automatically create builder classes for your Java Records, Java Beans and Interfaces.</li>
+            <li><strong>Flexible Configuration:</strong> Choose the fields that will be generated and create validators for fields annotated as Null/NotNull</li>
+            <li><strong>Seamless Integration:</strong> Access the plugin via the familiar IntelliJ "Generate" menu.</li>
+            <li><strong>Time Savings:</strong> Accelerate development by automating repetitive tasks.</li>
+            <li><strong>Repeatable:</strong> Preserves any custom changes you make to your builder methods when re-generating the builder</li>
+            <li><strong>Editable:</strong> Adds button to remove fields from the builder</li>
+            <li><strong>Validates Records:</strong> Ensures Null validation on record fields is added to the canonical constructor</li>
+        </ul>
+
+        <p>With the <strong>Builder Pattern Generator</strong> Plugin for IntelliJ, you can boost productivity while ensuring
+        your code remains well-structured and easily maintainable.
+        </p>
+
+        <p><strong>Note:</strong> This plugin is particularly useful for working with record classes and significantly
+        enhances the readability and maintainability of your Java code.</p>
+    </body>
+    ]]>
     </description>
     <version>1.0</version>
     <depends>com.intellij.modules.java</depends>
 
     <change-notes><![CDATA[
-  24.05.17 - 1.0.0 - Initial release
+  24.05.02 - 1.0.0 - Initial release
   ]]>
     </change-notes>
     <actions>
