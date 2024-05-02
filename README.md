@@ -1,11 +1,13 @@
-RecordBuilder is an Intellij IDEA plugin for generating an inline "Builder" pattern code for
-Java records, POJO's and Interfaces.
+RecordBuilder is an [IntelliJ IDEA](https://www.jetbrains.com/idea/) plugin for generating an inline "Builder"
+pattern code for Java records, POJO's and Interfaces.
 
 The plugin compatibility is declared to be for any version of IDEA from 
 `2023.3.` forward.
 
 When written, the plugin was targeted at IDEA `2023.3.3` and thus assumes
 you will use JDK 17 SDK to build and run it.
+
+![screenshot](screenshot.png)
 
 # Functionality
 
