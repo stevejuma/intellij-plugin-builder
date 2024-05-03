@@ -7,7 +7,6 @@
 .idea
 *.iml
 *.ipr
-screenshot.png
 
 /build
 
