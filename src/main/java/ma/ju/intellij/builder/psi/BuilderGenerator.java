@@ -163,16 +163,6 @@ public class BuilderGenerator {
       return;
     }
 
-    Map<PsiClass, Set<Field>> selectedMap =
-        selected.stream()
-            .collect(Collectors.groupingBy(Field::containingClass, Collectors.toSet()));
-    Map<PsiClass, Set<Field>> fieldMap =
-        Map.of(
-            recordClass,
-            new LinkedHashSet<>(getComponents(recordClass)),
-            builderClass,
-            new LinkedHashSet<>(getComponents(builderClass)));
-
     if (builderClass.getQualifiedName() != null) {
       for (PsiMethod method : recordClass.getAllMethods()) {
         if (method.getReturnType() == null) {
@@ -213,11 +203,7 @@ public class BuilderGenerator {
         PsiMethod generated = generatedDescriptor.methods().get(key);
         if (generated != null) {
           if (existing.getBody() != null && generated.getBody() != null) {
-            if (!existing
-                .getBody()
-                .getText()
-                .replaceAll("\\s+", "")
-                .equals(generated.getBody().getText().replaceAll("\\s+", ""))) {
+            if (!BuilderDescriptor.builderMethodSame(existing)) {
               continue;
             }
           }

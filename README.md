@@ -1,4 +1,4 @@
-RecordBuilder is an [IntelliJ IDEA](https://www.jetbrains.com/idea/) plugin for generating an inline "Builder"
+RecordBuilder is an [IntelliJ IDEA](https://www.jetbrains.com/idea/) [plugin](https://plugins.jetbrains.com/plugin/24331-record-builder) for generating an inline "Builder"
 pattern code for Java records, POJO's and Interfaces.
 
 The plugin compatibility is declared to be for any version of IDEA from 
@@ -120,7 +120,7 @@ First, check if the mutable type has a corresponding immutable cousin. For
 example, the types `List<String>` and `String[]` have the immutable counterpart
 `ImmutableList<String>` in [Guava](http://github.com/google/guava). If so, use
 the immutable type for your property. Alternatively the builder can be configured to generate 
-immutable collections for `List<?>`, `Set<?>` and `Map<?,?>` types. 
+immutable collections for `List<?>`, `Set<?>` and `Map<?,?>` types using `.copyOf(...)`
 
 ```java
 public record NameAndAge(List<String> names, int age) {

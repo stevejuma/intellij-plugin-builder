@@ -4,14 +4,18 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifier;
+import com.intellij.psi.PsiParameter;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 public record BuilderDescriptor(Map<String, PsiMethod> methods, Map<String, Field> fields) {
   public BuilderDescriptor() {
@@ -33,8 +37,7 @@ public record BuilderDescriptor(Map<String, PsiMethod> methods, Map<String, Fiel
       String field = getName(method.getName());
 
       TypeName typeName = Field.resolveType(method.getReturnType());
-      if (!descriptor.fields.containsKey(field)
-          || !descriptor.fields.get(field).typeName().equals(typeName)) {
+      if (descriptor.fields.containsKey(field) && !descriptor.fields.get(field).typeName().equals(typeName)) {
         continue;
       }
       descriptor.methods.put("%s(%s)".formatted(field, typeName), method);
@@ -96,8 +99,8 @@ public record BuilderDescriptor(Map<String, PsiMethod> methods, Map<String, Fiel
               Objects.requireNonNull(method.getParameterList().getParameter(0)).getType());
       String field = getName(method.getName());
 
-      if (!descriptor.fields.containsKey(field)
-          || !descriptor.fields.get(field).typeName().equals(parameterType)) {
+      if (descriptor.fields.containsKey(field)
+          && !descriptor.fields.get(field).typeName().equals(parameterType)) {
         continue;
       }
 
@@ -105,6 +108,55 @@ public record BuilderDescriptor(Map<String, PsiMethod> methods, Map<String, Fiel
     }
 
     return descriptor;
+  }
+
+  public static boolean builderMethodSame(PsiMethod source) {
+    Set<String> methods = new HashSet<>();
+    String name = getName(source.getName());
+    if (source.getParameterList().getParametersCount() != 1) {
+      return false;
+    }
+    TypeName type =
+        Field.resolveType(
+            Objects.requireNonNull(source.getParameterList().getParameter(0)).getType());
+    methods.add(
+        CodeBlock.builder()
+            .addStatement("this.$L = $L", name, name)
+            .addStatement("return this")
+            .build()
+            .toString());
+    methods.add(
+        CodeBlock.builder()
+            .addStatement("this.$L = $T.requireNonNull($L)", name, Objects.class, name)
+            .addStatement("return this")
+            .build()
+            .toString());
+    methods.add(
+        CodeBlock.builder()
+            .addStatement("this.$L = Objects.requireNonNull($L)", name, name)
+            .addStatement("return this")
+            .build()
+            .toString());
+    if (BuilderTypeGenerator.isCollection(type)) {
+      methods.add(
+          CodeBlock.builder()
+              .addStatement("this.$L = ($L == null) ? $T.of() : $L", name, name, type, name)
+              .addStatement("return this")
+              .build()
+              .toString());
+    }
+    methods.add(
+        CodeBlock.builder()
+            .addStatement(
+                "this.$L = ($L == null || $L.isBlank()) ? null : $L", name, name, name, name)
+            .addStatement("return this")
+            .build()
+            .toString());
+    String signature =
+        source.getBody() == null ? "" : source.getBody().getText().replaceAll("\\s+", "");
+    return methods.stream()
+        .map(it -> "{" + it.replaceAll("\\s+", "") + "}")
+        .anyMatch(it -> it.equals(signature));
   }
 
   public static String getName(String name) {

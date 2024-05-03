@@ -51,7 +51,7 @@ public record RegenerateRecord(String strField) {
      * @see RegenerateRecord#strField
      */
     public Builder setStrField(String strField) {
-      this.strField = strField;
+      this.strField = java.util.Objects.requireNonNull(strField, "Null strField");
       return this;
     }
 

@@ -1,6 +1,5 @@
 package ma.ju.intellij.builder.psi;
 
-import com.intellij.navigation.NavigationItem;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
@@ -210,6 +209,13 @@ public class BuilderTypeGenerator {
             component.name(),
             typeName,
             component.name());
+      } else if (!component.typeName().isPrimitive() && isNotNull(component)) {
+        body.addStatement(
+            "this.$L = $T.requireNonNull($L, $S)",
+            component.name(),
+            Objects.class,
+            component.name(),
+            "Null " + component.name());
       } else {
         body.addStatement("this.$L = $L", component.name(), component.name());
       }
@@ -235,7 +241,7 @@ public class BuilderTypeGenerator {
       if (builderClass != null) {
         if (exists) {
           PsiMethod existingMethod = descriptor.methods().get(key);
-          if (existingMethod.getBody() != null) {
+          if (existingMethod.getBody() != null && !BuilderDescriptor.builderMethodSame(existingMethod)) {
             CodeBlock.Builder cb = CodeBlock.builder();
             for (PsiStatement statement : existingMethod.getBody().getStatements()) {
               cb.add("$L\n", statement.getText());

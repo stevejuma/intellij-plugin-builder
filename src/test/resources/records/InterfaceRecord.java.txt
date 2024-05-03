@@ -45,7 +45,7 @@ interface InterfaceRecord {
        * @see InterfaceRecordRecord#name
        */
       public Builder setName(String name) {
-        this.name = name;
+        this.name = Objects.requireNonNull(name, "Null name");
         return this;
       }
 

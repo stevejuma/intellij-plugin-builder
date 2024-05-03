@@ -23,12 +23,12 @@ public class NestedRecord {
       public Builder() {}
 
       public Builder setField1(String field1) {
-        this.field1 = field1;
+        this.field1 = Objects.requireNonNull(field1, "Null field1");
         return this;
       }
 
       public Builder setField2(String field2) {
-        this.field2 = field2;
+        this.field2 = Objects.requireNonNull(field2, "Null field2");
         return this;
       }
 

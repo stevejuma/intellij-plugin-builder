@@ -35,7 +35,10 @@
     <depends>com.intellij.modules.java</depends>
 
     <change-notes><![CDATA[
-  24.05.02 - 1.0.0 - Initial release
+    <ul>
+      <li>24.05.03 - 1.0.4 - Update Logic for regenerating existing methods</li>
+      <li>24.05.02 - 1.0.0 - Initial release</li>
+    </ul>
   ]]>
     </change-notes>
     <actions>

@@ -44,6 +44,11 @@ public record RegenerateRecord(String strField) {
       return this;
     }
 
+    public Builder setStrField(String strField) {
+      this.strField = strField;
+      return this;
+    }
+
     /**
      * Returns a {@code RegenerateRecord} built from the parameters previously set.
      *

@@ -28,7 +28,7 @@ public record VarArgRecord(String... args) {
     }
 
     public Builder setArgs(String[] args) {
-      this.args = args;
+      this.args = Objects.requireNonNull(args, "Null args");
       return this;
     }
 
