@@ -20,6 +20,7 @@
             <li><strong>Repeatable:</strong> Preserves any custom changes you make to your builder methods when re-generating the builder</li>
             <li><strong>Editable:</strong> Adds button to remove fields from the builder</li>
             <li><strong>Validates Records:</strong> Ensures Null validation on record fields is added to the canonical constructor</li>
+            <li><strong>Validates Build Method</strong> Adds inspection for builder fields to notify when required fields are missing</li>
         </ul>
 
         <p>With the <strong>Builder Pattern Generator</strong> Plugin for IntelliJ, you can boost productivity while ensuring
@@ -36,6 +37,7 @@
 
     <change-notes><![CDATA[
     <ul>
+      <li>24.05.06 - 1.0.5 - Add inspection for missing fields & using IDE null annotations configuration</li>
       <li>24.05.03 - 1.0.4 - Update Logic for regenerating existing methods</li>
       <li>24.05.02 - 1.0.0 - Initial release</li>
     </ul>
@@ -60,4 +62,15 @@
             <keyboard-shortcut keymap="$default" first-keystroke="shift alt D"/>
         </action>
     </actions>
+    <extensions defaultExtensionNs="com.intellij">
+        <localInspection language="JAVA"
+                         bundle="messages.InspectionBundle"
+                         key="inspection.record.builder.missing.required.display.name"
+                         groupPath="Java"
+                         groupBundle="messages.InspectionsBundle"
+                         groupKey="group.names.probable.bugs"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="ma.ju.intellij.builder.inspection.BuilderMissingRequiredFieldsInspection"/>
+    </extensions>
 </idea-plugin>

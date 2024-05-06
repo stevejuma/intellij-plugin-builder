@@ -1,11 +1,10 @@
-package ma.ju.intellij.recordbuilder.ide;
+package ma.ju.intellij.builder.ide;
 
 import java.util.EnumSet;
 import java.util.List;
 
-import ma.ju.intellij.builder.ide.BuilderOption;
 import ma.ju.intellij.builder.psi.BuilderSettings;
-import ma.ju.intellij.recordbuilder.BuilderTestCase;
+import ma.ju.intellij.builder.BuilderTestCase;
 import ma.ju.intellij.builder.psi.Field;
 
 public class DeleteBuilderActionTest extends BuilderTestCase {
@@ -24,14 +23,14 @@ public class DeleteBuilderActionTest extends BuilderTestCase {
   public void testDeleteCustomMethod() {
     EnumSet<BuilderOption> opts = EnumSet.copyOf(options);
     opts.add(BuilderOption.WITH_JAVADOC);
-    verifyDeletedContents("DeleteCustomRecord.java", new BuilderSettings(opts));
+    verifyDeletedContents("DeleteCustomRecord", new BuilderSettings(opts));
   }
 
   public void testDeleteSingleMethod() {
     EnumSet<BuilderOption> opts = EnumSet.copyOf(options);
     opts.add(BuilderOption.WITH_JAVADOC);
     verifyDeletedContents(
-        "DeleteSingleMethod.java",
+        "DeleteSingleMethod",
         new BuilderSettings(opts),
         psiClass -> List.of(Field.of(psiClass.getRecordComponents()[0])));
   }

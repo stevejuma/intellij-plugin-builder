@@ -1,9 +1,15 @@
 package ma.ju.intellij.builder.ide;
 
+import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
+
+import com.intellij.codeInsight.NullableNotNullDialog;
 import com.intellij.codeInsight.generation.PsiElementClassMember;
 import com.intellij.codeInsight.generation.PsiFieldMember;
 import com.intellij.ide.util.MemberChooser;
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.psi.JavaPsiFacade;
@@ -12,21 +18,15 @@ import com.intellij.psi.PsiElementFactory;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.NonFocusableCheckBox;
-import ma.ju.intellij.builder.psi.Field;
-import ma.ju.intellij.builder.psi.BuilderGenerator;
-
-import javax.swing.*;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import static java.util.Arrays.stream;
-import static java.util.Collections.emptyList;
-import static java.util.Objects.requireNonNull;
+import javax.swing.*;
+import ma.ju.intellij.builder.psi.BuilderGenerator;
+import ma.ju.intellij.builder.psi.Field;
 
 public class RecordMemberChooser {
   private static final SelectorOption.DropDown.Renderer RENDERER =
@@ -145,13 +145,15 @@ public class RecordMemberChooser {
     return options;
   }
 
-  private static JComponent[] buildOptions() {
+  private static JComponent[] buildOptions(Project project) {
     final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
     final int optionCount = OPTIONS.size();
-    final JComponent[] checkBoxesArray = new JComponent[optionCount];
+    final JComponent[] checkBoxesArray = new JComponent[optionCount + 1];
     for (int i = 0; i < optionCount; i++) {
       checkBoxesArray[i] = buildOption(propertiesComponent, OPTIONS.get(i));
     }
+    checkBoxesArray[OPTIONS.size()] =
+        NullableNotNullDialog.createConfigureAnnotationsButton(project);
     return checkBoxesArray;
   }
 
@@ -230,7 +232,7 @@ public class RecordMemberChooser {
       members.addAll(RecordMemberChooser.mapAllFieldMembers(clazz));
     }
 
-    final JComponent[] optionCheckBoxes = buildOptions();
+    final JComponent[] optionCheckBoxes = buildOptions(recordClass.getProject());
     MemberChooser<PsiFieldMember> chooser =
         new MemberChooser<>(
             members.toArray(PsiFieldMember[]::new),

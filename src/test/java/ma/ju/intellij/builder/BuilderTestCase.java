@@ -1,19 +1,18 @@
-package ma.ju.intellij.recordbuilder;
+package ma.ju.intellij.builder;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiPlainTextFile;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
+import java.util.List;
+import java.util.function.Function;
 import ma.ju.intellij.builder.ide.RecordMemberChooser;
 import ma.ju.intellij.builder.psi.BuilderGenerator;
 import ma.ju.intellij.builder.psi.BuilderSettings;
 import ma.ju.intellij.builder.psi.Field;
-
-import java.util.List;
-import java.util.function.Function;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class BuilderTestCase extends LightJavaCodeInsightFixtureTestCase {
 
@@ -56,8 +55,8 @@ public abstract class BuilderTestCase extends LightJavaCodeInsightFixtureTestCas
 
   public void verifyDeletedContents(
       String input, BuilderSettings settings, Function<PsiClass, List<Field>> callback) {
-    var inputJava = getTestPsiJavaFile(input);
-    var outputText = getTestPsiTextFile(input + ".txt");
+    var inputJava = getTestPsiJavaFile(input + ".java");
+    var outputText = getTestPsiJavaFile(input + ".after.java");
     var recordClass = inputJava.getClasses()[0];
     WriteCommandAction.runWriteCommandAction(
         inputJava.getProject(),
@@ -66,8 +65,8 @@ public abstract class BuilderTestCase extends LightJavaCodeInsightFixtureTestCas
   }
 
   public void verifyContents(String input, BuilderSettings settings) {
-    var inputJava = getTestPsiJavaFile(input);
-    var outputText = getTestPsiTextFile(input + ".txt");
+    var inputJava = getTestPsiJavaFile(input + ".java");
+    var outputText = getTestPsiJavaFile(input + ".after.java");
     var recordClass = inputJava.getClasses()[0];
     WriteCommandAction.runWriteCommandAction(
         inputJava.getProject(), () -> BuilderGenerator.generate(recordClass, settings));

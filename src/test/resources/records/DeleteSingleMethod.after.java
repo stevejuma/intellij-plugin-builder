@@ -51,12 +51,8 @@ public record DeleteSingleMethod(Boolean active, List<String> data) {
      * @see DeleteSingleMethod
      */
     public DeleteSingleMethod build() {
-      java.lang.StringBuilder missing = new java.lang.StringBuilder();
       if (this.data == null) {
-        missing.append(" data");
-      }
-      if (!missing.isEmpty()) {
-        throw new java.lang.IllegalStateException("Missing required properties:" + missing);
+        throw new java.lang.IllegalStateException("Missing required property: data");
       }
       return new DeleteSingleMethod(null, this.data);
     }

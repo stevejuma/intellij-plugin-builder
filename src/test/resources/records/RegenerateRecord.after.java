@@ -62,12 +62,8 @@ public record RegenerateRecord(String strField) {
      * @see RegenerateRecord
      */
     public RegenerateRecord build() {
-      java.lang.StringBuilder missing = new java.lang.StringBuilder();
       if (this.strField == null) {
-        missing.append(" strField");
-      }
-      if (!missing.isEmpty()) {
-        throw new java.lang.IllegalStateException("Missing required properties:" + missing);
+        throw new java.lang.IllegalStateException("Missing required property: strField");
       }
       return new RegenerateRecord(this.strField);
     }

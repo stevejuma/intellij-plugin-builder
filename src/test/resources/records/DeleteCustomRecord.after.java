@@ -2,12 +2,10 @@ package ma.ju.intellij.builder.psi;
 
 import java.util.List;
 
-public record CustomRecord(List<String> data) {
-  public CustomRecord {
+public record DeleteCustomRecord(List<String> data) {
+
+  public DeleteCustomRecord {
     java.util.Objects.requireNonNull(data, "property :data is required");
-    if (data.isEmpty()) {
-      throw new IllegalStateException("property :data cannot be empty");
-    }
   }
 
   @java.lang.Override
@@ -27,9 +25,10 @@ public record CustomRecord(List<String> data) {
 
     private List<String> data = List.of();
 
-    private Builder() {}
+    private Builder() {
+    }
 
-    private Builder(CustomRecord record) {
+    private Builder(DeleteCustomRecord record) {
       this.data = record.data;
     }
 
@@ -38,7 +37,7 @@ public record CustomRecord(List<String> data) {
      *
      * @param data the {@code data} to set
      * @return a reference to this Builder
-     * @see CustomRecord#data
+     * @see DeleteCustomRecord#data
      */
     public Builder setData(List<String> data) {
       this.data = data == null ? List.of() : data;
@@ -49,27 +48,20 @@ public record CustomRecord(List<String> data) {
     }
 
     /**
-     * Returns a {@code CustomRecord} built from the parameters previously set.
+     * Returns a {@code DeleteCustomRecord} built from the parameters previously set.
      *
-     * @return a {@code CustomRecord} built with parameters of this {@code CustomRecord.Builder}
-     * @see CustomRecord
+     * @return a {@code DeleteCustomRecord} built with parameters of this {@code DeleteCustomRecord.Builder}
+     * @see DeleteCustomRecord
      */
-    public CustomRecord build() {
-      java.lang.StringBuilder missing = new java.lang.StringBuilder();
+    public DeleteCustomRecord build() {
       if (this.data == null) {
-        missing.append(" data");
-      }
-      if (!missing.isEmpty()) {
-        throw new java.lang.IllegalStateException("Missing required properties:" + missing);
+        throw new java.lang.IllegalStateException("Missing required property: data");
       }
       this.validate();
-      return new CustomRecord(this.data);
+      return new DeleteCustomRecord(this.data);
     }
 
-    private void validate() {
-      if (data.isEmpty()) {
-        throw new IllegalStateException("property :data cannot be empty");
-      }
+    void validate() {
     }
   }
 }

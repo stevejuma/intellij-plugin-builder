@@ -1,12 +1,11 @@
-package ma.ju.intellij.recordbuilder.ide;
+package ma.ju.intellij.builder.ide;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.intellij.openapi.command.WriteCommandAction;
-import ma.ju.intellij.builder.ide.BuilderOption;
 import ma.ju.intellij.builder.psi.BuilderGenerator;
 import ma.ju.intellij.builder.psi.BuilderSettings;
-import ma.ju.intellij.recordbuilder.BuilderTestCase;
+import ma.ju.intellij.builder.BuilderTestCase;
 
 import java.util.EnumSet;
 
@@ -26,22 +25,22 @@ public class RecordBuilderActionTest extends BuilderTestCase {
           BuilderOption.NULL_HANDLING_REQUIRED);
 
   public void testVarArgRecord() {
-    verifyContents("VarArgRecord.java", new BuilderSettings(options));
+    verifyContents("VarArgRecord", new BuilderSettings(options));
   }
 
   public void testPoJo() {
-    verifyContents("PoJo.java", new BuilderSettings(options));
+    verifyContents("PoJo", new BuilderSettings(options));
   }
 
   public void testCustomMethod() {
     EnumSet<BuilderOption> opts = EnumSet.copyOf(options);
     opts.add(BuilderOption.WITH_JAVADOC);
-    verifyContents("CustomRecord.java", new BuilderSettings(opts));
+    verifyContents("CustomRecord", new BuilderSettings(opts));
   }
 
   public void testNestedRecord() {
     var inputJava = getTestPsiJavaFile("NestedRecord.java");
-    var outputText = getTestPsiTextFile("NestedRecord.java.txt");
+    var outputText = getTestPsiJavaFile("NestedRecord.after.java");
 
     var recordClass = inputJava.getClasses()[0].getInnerClasses()[0];
     WriteCommandAction.runWriteCommandAction(
@@ -52,12 +51,12 @@ public class RecordBuilderActionTest extends BuilderTestCase {
   public void testInterface() {
     EnumSet<BuilderOption> opts = EnumSet.copyOf(options);
     opts.add(BuilderOption.WITH_JAVADOC);
-    verifyContents("InterfaceRecord.java", new BuilderSettings(opts));
+    verifyContents("InterfaceRecord", new BuilderSettings(opts));
   }
 
   public void testRegenerateRecord() {
     EnumSet<BuilderOption> opts = EnumSet.copyOf(options);
     opts.add(BuilderOption.WITH_JAVADOC);
-    verifyContents("RegenerateRecord.java", new BuilderSettings(opts));
+    verifyContents("RegenerateRecord", new BuilderSettings(opts));
   }
 }

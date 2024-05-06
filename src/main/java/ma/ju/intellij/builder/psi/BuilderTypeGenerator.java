@@ -1,5 +1,6 @@
 package ma.ju.intellij.builder.psi;
 
+import com.intellij.codeInsight.NullableNotNullManager;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
@@ -20,16 +21,14 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-
-import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.lang.model.element.Modifier;
 
 public class BuilderTypeGenerator {
   private final PsiClass recordClass;
@@ -38,18 +37,7 @@ public class BuilderTypeGenerator {
   private final PsiElementFactory elementFactory;
   private final BuilderSettings settings;
   private final BuilderDescriptor descriptor;
-
-  private static final Map<String, TypeName> PRIMITIVES =
-      Map.of(
-          "void", TypeName.VOID,
-          "boolean", TypeName.BOOLEAN,
-          "byte", TypeName.BYTE,
-          "short", TypeName.SHORT,
-          "int", TypeName.INT,
-          "long", TypeName.LONG,
-          "char", TypeName.CHAR,
-          "float", TypeName.FLOAT,
-          "double", TypeName.DOUBLE);
+  private final NullableNotNullManager nullableNotNullManager;
 
   private final TypeSpec.Builder builder;
 
@@ -64,6 +52,7 @@ public class BuilderTypeGenerator {
     this.builder =
         TypeSpec.classBuilder("Builder")
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
+    this.nullableNotNullManager = NullableNotNullManager.getInstance(recordClass.getProject());
 
     if (builderClass != null) {
       if (descriptor.methods().containsKey("build")) {
@@ -103,6 +92,7 @@ public class BuilderTypeGenerator {
     for (Field component : components) {
       FieldSpec.Builder fieldBuilder =
           FieldSpec.builder(component.typeName(), component.name(), Modifier.PRIVATE);
+
       if (isCollection(component.typeName()) && isNotNull(component)) {
         if (component.typeName() instanceof ParameterizedTypeName pt) {
           fieldBuilder.initializer("$T.of()", pt.rawType);
@@ -175,12 +165,21 @@ public class BuilderTypeGenerator {
       String key = "%s(%s)".formatted(component.name(), component.typeName());
       boolean exists = builderClass != null && descriptor.methods().containsKey(key);
       ParameterSpec.Builder param = ParameterSpec.builder(component.typeName(), component.name());
-      if (settings.validateNulls()) {
-        if (!component.typeName().isPrimitive()
-            && settings.validateNulls()
-            && isAnnotatedNull(component)) {
-          nullAnnotation(component).ifPresent(param::addAnnotation);
-        }
+      if (!component.typeName().isPrimitive() && settings.validateNulls()) {
+        nullAnnotation(component)
+            .or(
+                () -> {
+                  if (settings.nullHandlingRequired()) {
+                    if (NullableNotNullManager.isNotNull(component.source())) {
+                      return Optional.of(
+                          AnnotationSpec.builder(
+                                  ClassName.bestGuess(nullableNotNullManager.getDefaultNotNull()))
+                              .build());
+                    }
+                  }
+                  return Optional.empty();
+                })
+            .ifPresent(param::addAnnotation);
       }
 
       MethodSpec.Builder method =
@@ -199,10 +198,7 @@ public class BuilderTypeGenerator {
             component.name(),
             component.name());
       } else if (isCollection(component.typeName()) && isNotNull(component)) {
-        TypeName typeName = component.typeName();
-        if (component.typeName() instanceof ParameterizedTypeName pt) {
-          typeName = pt.rawType;
-        }
+        TypeName typeName = component.rawType();
         body.addStatement(
             "this.$L = ($L == null) ? $T.of() : $L",
             component.name(),
@@ -241,7 +237,8 @@ public class BuilderTypeGenerator {
       if (builderClass != null) {
         if (exists) {
           PsiMethod existingMethod = descriptor.methods().get(key);
-          if (existingMethod.getBody() != null && !BuilderDescriptor.builderMethodSame(existingMethod)) {
+          if (existingMethod.getBody() != null
+              && !BuilderDescriptor.builderMethodSame(existingMethod)) {
             CodeBlock.Builder cb = CodeBlock.builder();
             for (PsiStatement statement : existingMethod.getBody().getStatements()) {
               cb.add("$L\n", statement.getText());
@@ -339,11 +336,11 @@ public class BuilderTypeGenerator {
           && settings.validateNulls()
           && !component.typeName().isPrimitive()) {
         if (settings.nullHandlingRequired()) {
-          if (!isAnnotatedNull(component)) {
+          if (!NullableNotNullManager.isNullable(component.source())) {
             required.add(component);
           }
         } else {
-          if (isAnnotatedNotNull(component)) {
+          if (NullableNotNullManager.isNotNull(component.source())) {
             required.add(component);
           }
         }
@@ -351,20 +348,36 @@ public class BuilderTypeGenerator {
     }
 
     if (!required.isEmpty()) {
-      method.addStatement("$T missing = new $T()", StringBuilder.class, StringBuilder.class);
-      required.forEach(
-          it ->
-              method
-                  .beginControlFlow("if (this.$L == null)", it.name())
-                  .addStatement("missing.append($S)", " " + it.name())
-                  .endControlFlow());
-      method
-          .beginControlFlow("if (!missing.isEmpty())")
-          .addStatement(
-              "throw new $T($S + missing)",
-              IllegalStateException.class,
-              "Missing required properties:")
-          .endControlFlow();
+      CodeBlock.Builder condition = CodeBlock.builder();
+
+      for (int i = 0; i < required.size(); i++) {
+        Field requiredField = required.get(i);
+        if (i > 0) {
+          condition.add(" || $Z");
+        }
+        condition.add("this.$L == null", requiredField.name());
+      }
+      method.beginControlFlow("if ($L)", condition.build());
+
+      if (required.size() == 1) {
+        method.addStatement(
+            "throw new $T($S)",
+            IllegalStateException.class,
+            "Missing required property: " + required.get(0).name());
+      } else {
+        method.addStatement("$T missing = new $T()", StringBuilder.class, StringBuilder.class);
+        required.forEach(
+            it ->
+                method
+                    .beginControlFlow("if (this.$L == null)", it.name())
+                    .addStatement("missing.append($S)", " " + it.name())
+                    .endControlFlow());
+        method.addStatement(
+            "throw new $T($S + missing)",
+            IllegalStateException.class,
+            "Missing required properties:");
+      }
+      method.endControlFlow();
     }
 
     if (descriptor.methods().containsKey("validate")) {
@@ -390,64 +403,31 @@ public class BuilderTypeGenerator {
     if (component.typeName().isPrimitive()) {
       return true;
     }
-    if (settings.nullHandlingRequired()) {
-      return !isAnnotatedNull(component);
-    }
-    return isAnnotatedNotNull(component);
-  }
 
-  public static boolean isAnnotatedNull(Field component) {
-    if (isAnnotatedNotNull(component)) {
-      return false;
-    }
-    for (PsiAnnotation annotation : component.source().getAnnotations()) {
-      String qualifiedName = annotation.getQualifiedName();
-      if (qualifiedName != null) {
-        if (qualifiedName.endsWith("Nullable") || qualifiedName.endsWith("Null")) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return settings.nullHandlingRequired()
+        ? !NullableNotNullManager.isNullable(component.source())
+        : NullableNotNullManager.isNotNull(component.source());
   }
 
   public static Optional<AnnotationSpec> nullAnnotation(Field component) {
-    if (!isAnnotatedNull(component)) {
-      return Optional.empty();
-    }
     for (PsiAnnotation annotation : component.source().getAnnotations()) {
       String qualifiedName = annotation.getQualifiedName();
-      if (qualifiedName != null) {
-        if (qualifiedName.endsWith("Nullable") || qualifiedName.endsWith("Null")) {
-          AnnotationSpec.Builder builder =
-              AnnotationSpec.builder(ClassName.bestGuess(qualifiedName));
-          annotation
-              .getAttributes()
-              .forEach(
-                  attr -> {
-                    PsiAnnotationMemberValue value =
-                        annotation.findAttributeValue(attr.getAttributeName());
-                    if (value != null) {
-                      builder.addMember(attr.getAttributeName(), "$L", value.getText());
-                    }
-                  });
-          return Optional.of(builder.build());
-        }
+      if (qualifiedName != null && NullableNotNullManager.isNullabilityAnnotation(annotation)) {
+        AnnotationSpec.Builder builder = AnnotationSpec.builder(ClassName.bestGuess(qualifiedName));
+        annotation
+            .getAttributes()
+            .forEach(
+                attr -> {
+                  PsiAnnotationMemberValue value =
+                      annotation.findAttributeValue(attr.getAttributeName());
+                  if (value != null) {
+                    builder.addMember(attr.getAttributeName(), "$L", value.getText());
+                  }
+                });
+        return Optional.of(builder.build());
       }
     }
     return Optional.empty();
-  }
-
-  public static boolean isAnnotatedNotNull(Field component) {
-    for (PsiAnnotation annotation : component.source().getAnnotations()) {
-      String qualifiedName = annotation.getQualifiedName();
-      if (qualifiedName != null) {
-        if (qualifiedName.endsWith("NotNull") || qualifiedName.endsWith("NonNull")) {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 
   public static boolean isNotEmpty(Field component) {

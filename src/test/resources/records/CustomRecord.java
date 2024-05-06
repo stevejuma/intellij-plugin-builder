@@ -1,6 +1,7 @@
 package ma.ju.intellij.builder.psi;
 
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public record CustomRecord(List<String> data) {
   public static class Builder {

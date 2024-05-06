@@ -1,5 +1,6 @@
 package ma.ju.intellij.builder.psi;
 
+import com.intellij.codeInsight.NullableNotNullManager;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
@@ -15,18 +16,15 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
-import ma.ju.intellij.builder.ide.RecordMemberChooser;
-import org.jetbrains.annotations.NotNull;
-
-import javax.lang.model.element.Modifier;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.lang.model.element.Modifier;
+import ma.ju.intellij.builder.ide.RecordMemberChooser;
+import org.jetbrains.annotations.NotNull;
 
 public class BuilderGenerator {
 
@@ -231,7 +229,10 @@ public class BuilderGenerator {
     generate(recordClass, regenerate, settings);
   }
 
-  public static @NotNull List<Field> getComponents(@NotNull PsiClass recordClass) {
+  public static @NotNull List<Field> getComponents(PsiClass recordClass) {
+    if (recordClass == null) {
+      return List.of();
+    }
     if (recordClass.isRecord()) {
       return Arrays.stream(recordClass.getRecordComponents()).map(Field::of).toList();
     }
@@ -251,8 +252,8 @@ public class BuilderGenerator {
       boolean isCollectionType = BuilderTypeGenerator.isCollection(component.typeName());
       boolean isNotNull =
           settings.nullHandlingRequired()
-              ? !BuilderTypeGenerator.isAnnotatedNull(component)
-              : BuilderTypeGenerator.isAnnotatedNotNull(component);
+              ? !NullableNotNullManager.isNullable(component.source())
+              : NullableNotNullManager.isNotNull(component.source());
 
       if (settings.immutableCollections() && isCollectionType) {
         tpl =
@@ -355,8 +356,8 @@ public class BuilderGenerator {
       boolean isCollectionType = BuilderTypeGenerator.isCollection(component.typeName());
       boolean isNotNull =
           settings.nullHandlingRequired()
-              ? !BuilderTypeGenerator.isAnnotatedNull(component)
-              : BuilderTypeGenerator.isAnnotatedNotNull(component);
+              ? !NullableNotNullManager.isNullable(component.source())
+              : NullableNotNullManager.isNotNull(component.source());
 
       int index = count;
       if (settings.validateNulls() && isNotNull && !component.typeName().isPrimitive()) {

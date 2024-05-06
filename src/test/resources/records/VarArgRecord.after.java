@@ -33,14 +33,10 @@ public record VarArgRecord(String... args) {
     }
 
     public VarArgRecord build() {
-      StringBuilder missing = new StringBuilder();
-      if (this.args == null) {
-        missing.append(" args");
-      }
-      if (!missing.isEmpty()) {
-        throw new IllegalStateException("Missing required properties:" + missing);
-      }
-      return new VarArgRecord(this.args);
+        if (this.args == null) {
+            throw new IllegalStateException("Missing required property: args");
+        }
+        return new VarArgRecord(this.args);
     }
   }
 }

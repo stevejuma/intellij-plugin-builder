@@ -68,14 +68,14 @@ interface InterfaceRecord {
        * @see InterfaceRecordRecord
        */
       public InterfaceRecord build() {
-        StringBuilder missing = new StringBuilder();
-        if (this.name == null) {
-          missing.append(" name");
-        }
-        if (this.friends == null) {
-          missing.append(" friends");
-        }
-        if (!missing.isEmpty()) {
+        if (this.name == null || this.friends == null) {
+          StringBuilder missing = new StringBuilder();
+          if (this.name == null) {
+            missing.append(" name");
+          }
+          if (this.friends == null) {
+            missing.append(" friends");
+          }
           throw new IllegalStateException("Missing required properties:" + missing);
         }
         return new InterfaceRecordRecord(this.name, this.friends);

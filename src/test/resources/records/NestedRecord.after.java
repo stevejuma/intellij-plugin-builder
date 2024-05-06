@@ -33,14 +33,14 @@ public class NestedRecord {
       }
 
       public Sample build() {
-        StringBuilder missing = new StringBuilder();
-        if (this.field1 == null) {
-          missing.append(" field1");
-        }
-        if (this.field2 == null) {
-          missing.append(" field2");
-        }
-        if (!missing.isEmpty()) {
+        if (this.field1 == null || this.field2 == null) {
+          StringBuilder missing = new StringBuilder();
+          if (this.field1 == null) {
+            missing.append(" field1");
+          }
+          if (this.field2 == null) {
+            missing.append(" field2");
+          }
           throw new IllegalStateException("Missing required properties:" + missing);
         }
         return new Sample(this.field1, this.field2);
